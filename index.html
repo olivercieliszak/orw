@@ -1,0 +1,93 @@
+<!doctype html>
+	<head>
+
+		<meta charset="utf-8">
+		<title>Lab</title>
+		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+		  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+		  <script>
+			$( document ).ready(function() {
+				$('#getDataFromScrapper').click(function(){
+					$('.modal-title').text('Dane ze scrappera');
+					$('.modal-body').html('Trwa ładowanie...');
+					$.getJSON( "./API.php?cmd=readScrapper",
+						function( jsonData ) {
+							$('.modal-body').html('<b>Źródło:</b> ' + jsonData.url + '<br>'+'<b>Nazwa pliku:</b> ' + jsonData.fileName + '<br>'+'<b>Zawartość:</b> ' + jsonData.data);
+							// console.log(jsonData);
+						});
+				});
+
+				$('#executeFromScrapper').click(function(){
+					$('.modal-body').html('Trwa ładowanie...');
+					$('.modal-title').text('Polecenie do Scrappera');
+					$.getJSON( "./API.php?cmd=executeScrapper",
+						function( jsonData ) {
+						console.log('ok');
+						$('.modal-body').html('Wykonano.<br><b>Nazwa pliku:</b> ' + jsonData.fileName);
+						});
+				});
+				
+				$('#getDataFromOAuth').click(function(){
+					$('.modal-body').html('Trwa ładowanie...');
+					$('.modal-title').text('Dane z OAuth');
+					$.getJSON( "./API.php?cmd=getDataFromOAuth",
+						function( jsonData ) {
+						if(jsonData.status == "OK"){
+							$('.modal-body').html('Zalogowany w serwisie ' + jsonData.source + ' jako:<br>'+'<b>Imię i nazwisko:</b> ' + jsonData.userData.name + '<br>'+'<b>Płeć:</b> ' + jsonData.userData.genderPL);
+							if(jsonData.fanpageData != undefined){
+								$('.modal-body').append('<hr><h4><center>Najnowszy post z fanpage\'a "Nagłówki nie do ogarnięcia"</h4></center>');
+								if(jsonData.fanpageData.full_picture != undefined){
+									$('.modal-body').append('<br><img src="'+jsonData.fanpageData.full_picture+'" style="width: 100%">');
+								}
+								if(jsonData.fanpageData.message != undefined){
+									$('.modal-body').append('<br><br><center><a href="https://www.facebook.com/'+jsonData.fanpageData.id+'" target="_blank">'+jsonData.fanpageData.message+'</a></center>');
+								}
+							}
+						}
+						else{
+							$('.modal-body').html('Wystąpił błąd:<br>'+jsonData.data);
+						}
+						console.log(jsonData);
+						}).fail(function(){
+							console.log('Error');
+							$('.modal-body').html('Wystąpił błąd:<br>Kliknij <a href="fbLogin.php">tutaj</a> aby się zalogować.');
+						});
+				});
+			
+			});
+		  </script>
+	</head>
+	<body>
+
+		<div class="container">
+		  <h2>Lab</h2>
+			
+			<button type="button" id="getDataFromScrapper" class="btn btn-default" data-toggle="modal" data-target="#myModal">Pobierz dane ze Scrappera</button>
+			<button type="button" id="executeFromScrapper" class="btn btn-default" data-toggle="modal" data-target="#myModal">Wykonaj Scrappera</button>
+			<button type="button" id="getDataFromOAuth" class="btn btn-default" data-toggle="modal" data-target="#myModal">Pobierz dane z OAuth</button>
+		</div>
+ <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"></h4>
+        </div>
+        <div class="modal-body">
+          <p>Trwa ładowanie...</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Zamknij</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  </div>
+	</body>
+</html>
